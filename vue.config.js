@@ -42,5 +42,5 @@ module.exports = { //内部只能写vue封装的配置
         changeOrigin: true, // 支持跨域, 如果协议/主机也不相同, 必须加上
       },
     }
-  }
+  },
 }

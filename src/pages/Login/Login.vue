@@ -4,35 +4,62 @@
       <div class="login_header">
         <h2 class="login_logo">硅谷外卖</h2>
         <div class="login_header_title">
-          <a href="javascript:;" class="on">短信登录</a>
-          <a href="javascript:;">密码登录</a>
+          <a href="javascript:;" :class="{on:isShowSMS}" @click="isShowSMS=true">短信登录</a>
+          <a href="javascript:;" :class="{on:!isShowSMS}" @click="isShowSMS=false">密码登录</a>
         </div>
       </div>
       <div class="login_content">
         <form>
-          <div class="on">
+          <div :class="{on:isShowSMS}">
             <section class="login_message">
-              <input type="tel" maxlength="11" placeholder="手机号">
-              <button disabled="disabled" class="get_verification">获取验证码</button>
+              <input 
+                type="tel"
+                maxlength="11"
+                placeholder="手机号"
+                v-model="phone"
+                name="phone" 
+                v-validate="{required: true,regex: /^1\d{10}$/}"
+              >
+              <button 
+                :disabled="!isRightPhone" 
+                class="get_verification" 
+                :class="{right_phone_number:isRightPhone}" 
+                @click.prevent="sendCode"
+              >{{time>0?`发送成功(${time}s)`:'获取验证码'}}</button>
+              <span 
+                style="color: red;" 
+                v-show="errors.has('phone')"
+              >{{ errors.first('phone') }}</span>
             </section>
             <section class="login_verification">
-              <input type="tel" maxlength="8" placeholder="验证码">
+              <input 
+                type="tel" 
+                maxlength="8" 
+                placeholder="验证码"
+                v-model="code"
+                name="code" 
+                v-validate="{required: true,regex: /^1\d{10}$/}"
+              >
+              <span 
+                style="color: red;" 
+                v-show="errors.has('code')"
+              >{{ errors.first('code') }}</span>
             </section>
             <section class="login_hint">
               温馨提示：未注册硅谷外卖帐号的手机号，登录时将自动注册，且代表已同意
               <a href="javascript:;">《用户服务协议》</a>
             </section>
           </div>
-          <div>
+          <div :class="{on:!isShowSMS}">
             <section>
               <section class="login_message">
                 <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名">
               </section>
               <section class="login_verification">
-                <input type="tel" maxlength="8" placeholder="密码">
-                <div class="switch_button off">
-                  <div class="switch_circle"></div>
-                  <span class="switch_text">...</span>
+                <input :type="isShowPwd ? 'password' : 'text'" maxlength="8" placeholder="密码">
+                <div class="switch_button" :class="isShowPwd ? 'off':'on'" @click="isShowPwd = !isShowPwd">
+                  <div class="switch_circle" :class="{right:!isShowPwd}"></div>
+                  <span class="switch_text">{{isShowPwd ? '':'abc'}}</span>
                 </div>
               </section>
               <section class="login_message">
@@ -54,6 +81,39 @@
 
 <script type="text/ecmascript-6">
   export default {
+    name:'login',
+    data(){
+      return {
+        isShowSMS:false,
+        phone:'',
+        code:'',
+        isShowPwd:'false',
+        time:0
+      }
+    },
+
+    computed:{
+      isRightPhone(){
+        return /^(0|86|17951)?(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/.test(this.phone)
+      }
+    },
+
+    methods:{
+      sendCode(){
+          this.time = 10
+          const timer = setInterval(() => {
+            this.time--
+            if(this.time<0){
+              clearInterval(timer)
+            }
+          }, 1000);
+      },
+      async login(){
+        const names = ['phone','code']
+        const success = await this.$validator.validateAll(names)
+        console.log(success)
+      }
+    }
   }
 </script>
 
@@ -117,6 +177,8 @@
                   color #ccc
                   font-size 14px
                   background transparent
+                  &.right_phone_number
+                    color black
               .login_verification
                 position relative
                 margin-top 16px
@@ -156,6 +218,8 @@
                     background #fff
                     box-shadow 0 2px 4px 0 rgba(0,0,0,.1)
                     transition transform .3s
+                    &.right
+                      transform translateX(30px)
               .login_hint
                 margin-top 12px
                 color #999
