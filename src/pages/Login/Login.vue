@@ -18,10 +18,10 @@
                 placeholder="手机号"
                 v-model="phone"
                 name="phone" 
-                v-validate="{required: true,regex: /^1\d{10}$/}"
+                v-validate="'required|mobile'"
               >
               <button 
-                :disabled="!isRightPhone" 
+                :disabled="!isRightPhone || time>0" 
                 class="get_verification" 
                 :class="{right_phone_number:isRightPhone}" 
                 @click.prevent="sendCode"
@@ -38,7 +38,7 @@
                 placeholder="验证码"
                 v-model="code"
                 name="code" 
-                v-validate="{required: true,regex: /^1\d{10}$/}"
+                v-validate="{required: true,regex: /^\d{6}$/}"
               >
               <span 
                 style="color: red;" 
@@ -53,22 +53,52 @@
           <div :class="{on:!isShowSMS}">
             <section>
               <section class="login_message">
-                <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名">
+                <input 
+                  type="tel"
+                  maxlength="11"
+                  placeholder="手机/邮箱/用户名"
+                  v-model="user"
+                  name="user"
+                  v-validate="{required: true}"
+                >
+                <span style="color: red;" v-show="errors.has('user')">{{ errors.first('user') }}</span>
               </section>
               <section class="login_verification">
-                <input :type="isShowPwd ? 'password' : 'text'" maxlength="8" placeholder="密码">
+                <input 
+                  :type="isShowPwd ? 'password' : 'text'" 
+                  maxlength="8" 
+                  placeholder="密码"
+                  v-model="pwd"
+                  name="pwd"
+                  v-validate="{required: true}"
+                >
                 <div class="switch_button" :class="isShowPwd ? 'off':'on'" @click="isShowPwd = !isShowPwd">
                   <div class="switch_circle" :class="{right:!isShowPwd}"></div>
                   <span class="switch_text">{{isShowPwd ? '':'abc'}}</span>
                 </div>
+                <span style="color: red;" v-show="errors.has('pwd')">{{ errors.first('pwd') }}</span>
               </section>
               <section class="login_message">
-                <input type="text" maxlength="11" placeholder="验证码">
-                <img class="get_verification" src="./images/captcha.svg" alt="captcha">
+                <input 
+                  type="text"
+                  maxlength="11"
+                  placeholder="验证码"
+                  v-model="captcha"
+                  name="captcha"
+                  v-validate="{required: true,regex: /^[0-9a-zA-Z]{4}$/}"
+                >
+                <img 
+                  class="get_verification" 
+                  src="http://localhost:4000/captcha" 
+                  alt="captcha" 
+                  ref="captcha"
+                  @click="updateCaptcha"
+                >
+                <span style="color: red;" v-show="errors.has('captcha')">{{ errors.first('captcha') }}</span>
               </section>
             </section>
           </div>
-          <button class="login_submit">登录</button>
+          <button class="login_submit" @click.prevent="login">登录</button>
         </form>
         <a href="javascript:;" class="about_us">关于我们</a>
       </div>
@@ -80,13 +110,17 @@
 </template>
 
 <script type="text/ecmascript-6">
+  import { MessageBox,Toast } from "mint-ui";
   export default {
     name:'login',
     data(){
       return {
-        isShowSMS:false,
+        isShowSMS:false,  
         phone:'',
         code:'',
+        user:'',
+        pwd:'',
+        captcha:'',
         isShowPwd:'false',
         time:0
       }
@@ -94,24 +128,79 @@
 
     computed:{
       isRightPhone(){
-        return /^(0|86|17951)?(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/.test(this.phone)
+        return /^1\d{10}$/.test(this.phone)
       }
     },
 
     methods:{
+
       sendCode(){
-          this.time = 10
-          const timer = setInterval(() => {
-            this.time--
-            if(this.time<0){
-              clearInterval(timer)
-            }
-          }, 1000);
+        this.time = 10
+        const timer = setInterval(() => {
+          this.time--
+          if(this.time<=0){
+            this.time = 0
+            clearInterval(timer)
+          }
+        }, 1000);
+        //发请求获取验证码
+        const result = this.$API.reqSendCode(this.phone)
+        //根据请求结果不同,做不同处理
+        if(result.code === 0){
+          Toast('成功发送验证码')
+        }else{
+          //停止定时器
+          this.time = 0
+          MessageBox('提示',result.msg || '发送失败')
+        }
+
       },
+
+     
+
       async login(){
-        const names = ['phone','code']
+        let names
+        if(this.isShowSMS){
+         names = ['phone','code']
+        }else{
+          names = ['user','pwd','captcha']
+        } 
         const success = await this.$validator.validateAll(names)
         console.log(success)
+        //通过校验后,发送请求
+        //判断success是否存在
+        let result
+        if(success){
+          //从状态中取参数
+          const {phone,code,user,pwd,captcha} = this
+          //判断是短信登录还是密码登录
+          if(this.isShowSMS){
+            //如果是短信登录
+            result = await this.$API.reqSmsLogin({phone,code}) 
+          }else{
+            //如果是密码登录
+            result = await this.$API.reqPwdLogin({user,pwd,captcha})
+            //更新图形
+            this.updateCaptcha()
+            //清空
+            this.captcha=''
+          }
+        }
+        //根据请求结果的不同,进行不同的处理
+        //判断code
+        if(result.code === 0 ){
+          //若成功.将数据保存进vuex的state中
+          const user = result.data
+          this.$store.dispatch('saveUser',user)
+          //跳转页面
+          this.$router.replace('/profile')
+        }else{
+          MessageBox('提示',result.msg)
+        }
+      },
+
+      updateCaptcha(){
+        this.$refs.captcha.src = 'http://localhost:4000/captcha?time=' + Date.now()
       }
     }
   }

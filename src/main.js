@@ -7,9 +7,16 @@ import App from '@/App' // 引入自定义组件
 import router from './router'
 import store from './store/store'
 import Header from './components/Header/Header.vue'
+import Star from './components/Star/Star.vue'
+import './validate'
+import * as API from '@/api'
+
+//将所有api挂载到vue原型上
+Vue.prototype.$API = API
 
 //声明使用插件
 Vue.component('Header',Header)
+Vue.component('Star',Star)
 Vue.use(VeeValidate)
 
 VeeValidate.Validator.localize('zh_CN', {

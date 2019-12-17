@@ -11,6 +11,8 @@ import axios from 'axios'
 import qs from 'qs'
 import { Indicator } from 'mint-ui';
 
+import store from '@/store/store.js'
+
 const instance = axios.create({
   baseURL:'/api',
   timeout:15000
@@ -29,6 +31,16 @@ instance.interceptors.request.use((config) => {
   if(data instanceof Object){
     config.data = qs.stringify(data)
   }
+
+  //5. 通过请求头携带token数据
+  //获取token 
+  const token = store.state.token
+  //判断token是否存在
+  if(token){
+    //发送请求时以请求体的形式携带
+    config.headers['Authorization'] = token
+  }
+
   return config
 })
 
@@ -44,6 +56,10 @@ instance.interceptors.response.use(
   error => {
     //关闭请求loading效果
     Indicator.close();
+    //判断请求的状态码如果为401,自动跳转login页面
+    // if(error.response.status===401){
+      
+    // }
 
     alert('请求出错'+error.message)
     return new Promise(() => {})

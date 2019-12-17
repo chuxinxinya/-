@@ -10,3 +10,14 @@ export const reqCategorys = () => axios('/index_category')
 //获取商铺列表的请求
 export const reqShops = ({longitude,latitude}) => axios('/shops',{params:{latitude,longitude}})
 
+//用户名密码登录的请求
+export const reqPwdLogin = ({user,pwd,captcha}) => axios.post('/login_pwd',{name:user,pwd,captcha})
+
+//手机号验证码登录的请求
+export const reqSmsLogin = ({phone,code}) => axios.post('/login_sms',{phone,code})
+
+//发送短信验证码的请求
+export const reqSendCode = (phone) => axios.get('/sendcode',{params:{phone}})
+
+//自动登录的请求
+export const reqAutoLogin = () => axios.get('/auto_login')
