@@ -5,7 +5,12 @@ import {
   RECEIVE_CATEGORYS,
   RECEIVE_SHOPS,
   RECEIVE_USER,
-  RECEIVE_TOKEN
+  RECEIVE_TOKEN,
+  RESET_USER,
+  RESET_TOKEN,
+  RECEIVE_GOODS,
+  RECEIVE_RATINGS,
+  RECEIVE_INFO
 } from "./mutation-types";
 
 export default {
@@ -28,5 +33,25 @@ export default {
 
   [RECEIVE_TOKEN](state,token){
     state.token = token
-  }
+  },
+
+  [RESET_USER](state){
+    state.user = {}
+  },
+
+  [RESET_TOKEN](state){
+    state.token = ''
+  },
+
+  [RECEIVE_GOODS](state,goods){
+    state.goods = goods
+  },
+
+  [RECEIVE_RATINGS](state,ratings){
+    state.ratings = ratings
+  },
+
+  [RECEIVE_INFO](state,info){
+    state.info = info
+  },
 }

@@ -5,7 +5,8 @@ function resolve (dir) {
 const px2rem = require('postcss-px2rem')
 
 
-module.exports = { //内部只能写vue封装的配置
+module.exports = {
+  //内部只能写vue封装的配置
   configureWebpack: {// 当前配置需要写入该选项中
     resolve: {
       extensions: ['.js', '.vue', '.json'],
@@ -16,6 +17,7 @@ module.exports = { //内部只能写vue封装的配置
       }
     }
   },
+
   //runtimeCompiler: true,
   // lintOnSave: false, // 关闭EsLint的规则
   css: { // 添加postcss配置
@@ -43,4 +45,13 @@ module.exports = { //内部只能写vue封装的配置
       },
     }
   },
+
+  pluginOptions: {
+    i18n: {
+      locale: 'zh_CN',
+      fallbackLocale: 'en',
+      localeDir: 'locales',
+      enableInSFC: false
+    }
+  }
 }

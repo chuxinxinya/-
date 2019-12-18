@@ -21,3 +21,12 @@ export const reqSendCode = (phone) => axios.get('/sendcode',{params:{phone}})
 
 //自动登录的请求
 export const reqAutoLogin = () => axios.get('/auto_login')
+
+//获取商店商品的列表
+export const reqShopGoods = () => axios('/goods')
+
+//获取评价列表
+export const reqShopRatings = () => axios('/ratings')
+
+//获取商品商铺的列表
+export const reqShopInfo = () => axios('/info')

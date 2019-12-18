@@ -98,13 +98,14 @@
               </section>
             </section>
           </div>
-          <button class="login_submit" @click.prevent="login">登录</button>
+          <button class="login_submit" @click.prevent="login">{{$t('login_login')}}</button>
         </form>
-        <a href="javascript:;" class="about_us">关于我们</a>
+        <a href="javascript:;" class="about_us">{{$t('login_aboutUs')}}</a>
       </div>
       <a href="javascript:" class="go_back" @click="$router.back()">
         <i class="iconfont icon-jiantou2"></i>
       </a>
+      <button @click="toggleLanguage">切换语言</button>
     </div>
   </section>
 </template>
@@ -133,8 +134,7 @@
     },
 
     methods:{
-
-      sendCode(){
+     async sendCode(){
         this.time = 10
         const timer = setInterval(() => {
           this.time--
@@ -144,8 +144,9 @@
           }
         }, 1000);
         //发请求获取验证码
-        const result = this.$API.reqSendCode(this.phone)
+        const result = await this.$API.reqSendCode(this.phone)
         //根据请求结果不同,做不同处理
+        console.log(result)
         if(result.code === 0){
           Toast('成功发送验证码')
         }else{
@@ -166,7 +167,6 @@
           names = ['user','pwd','captcha']
         } 
         const success = await this.$validator.validateAll(names)
-        console.log(success)
         //通过校验后,发送请求
         //判断success是否存在
         let result
@@ -201,6 +201,15 @@
 
       updateCaptcha(){
         this.$refs.captcha.src = 'http://localhost:4000/captcha?time=' + Date.now()
+      },
+
+      toggleLanguage(){
+        //取反当前的本地语言
+        const local = this.$i18n.locale === 'en' ? 'zh_CN':'en'
+        //设置
+        this.$i18n.locale = local
+        //保存进状态
+        localStorage.setItem('locale_key', local)
       }
     }
   }

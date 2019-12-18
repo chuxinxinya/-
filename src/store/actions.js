@@ -5,7 +5,10 @@ import {
   reqAddress,
   reqCategorys,
   reqShops,
-  reqAutoLogin
+  reqAutoLogin,
+  reqShopGoods,
+  reqShopRatings,
+  reqShopInfo
 } from "@/api";
 
 import {
@@ -13,7 +16,12 @@ import {
   RECEIVE_CATEGORYS,
   RECEIVE_SHOPS,
   RECEIVE_USER,
-  RECEIVE_TOKEN
+  RECEIVE_TOKEN,
+  RESET_USER,
+  RESET_TOKEN,
+  RECEIVE_GOODS,
+  RECEIVE_RATINGS,
+  RECEIVE_INFO
 } from "./mutation-types";
 
 export default {
@@ -77,6 +85,51 @@ export default {
         const user = result.data  //此时返回的数据中没有token
         commit(RECEIVE_USER,user)
       }
+    }
+  },
+
+  //退出登录
+  logout({commit}){
+    //从local中删除数据
+    localStorage.removeItem('token_key')
+    //通知mutation删除state中的数据
+    commit(RESET_USER)
+    commit(RESET_TOKEN)
+  },
+
+  //异步获取商家商品列表
+  async getShopGoods({commit},cb){
+    const result = await reqShopGoods()
+    if(result.code === 0){
+      //数据获取成功
+      const goods = result.data
+      commit(RECEIVE_GOODS,goods)
+      //判断cb的类型并执行
+      typeof cb === 'function' && cb()
+    }
+  },
+
+  //异步获取评价列表
+  async getShopRatings({commit},cb){
+    const result = await reqShopRatings()
+    if(result.code === 0){
+      //数据获取成功
+      const ratings = result.data
+      commit(RECEIVE_RATINGS,ratings)
+      //判断cb的类型并执行
+      typeof cb === 'function' && cb()
+    }
+  },
+
+  //异步获取商家详细信息的列表
+  async getShopInfo({commit},cb){
+    const result = await reqShopInfo()
+    if(result.code === 0){
+      //数据获取成功
+      const info = result.data
+      commit(RECEIVE_INFO,info)
+      //判断cb的类型并执行
+      typeof cb === 'function' && cb()
     }
   }
   
