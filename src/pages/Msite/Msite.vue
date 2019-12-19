@@ -89,7 +89,12 @@
   import {mapState} from 'vuex'
   export default {
     computed:{
-      ...mapState(['address','categorys','shops']),
+      //['address','categorys','shops']
+      ...mapState({
+        address:state => state.msite.address,
+        categorys:state => state.msite.categorys,
+        shops:state => state.msite.shops,
+      }),
 
       /*
       定义二维数组 

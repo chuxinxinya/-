@@ -41,47 +41,50 @@
         {{info.supports.length}}个优惠
       </div>
     </div>
-    <div class="shop-brief-modal" style="display: none;" v-show="isShowBulletin">
-      <div class="brief-modal-content">
-        <h2 class="content-title">
-          <span class="content-tag">
-            <span class="mini-tag">品牌</span>
-          </span>
-          <span class="content-name">{{info.name}}</span>
-        </h2>
-        <ul class="brief-modal-msg">
-          <li>
-            <h3>{{info.rating}}</h3>
-            <p>评分</p>
-          </li>
-          <li>
-            <h3>{{info.sellCount}}单</h3>
-            <p>月售</p>
-          </li>
-          <li>
-            <h3>{{info.description}}</h3>
-            <p>约{{info.deliveryTime}}分钟</p>
-          </li>
-          <li>
-            <h3>{{info.deliveryPrice}}元</h3>
-            <p>配送费用</p>
-          </li>
-          <li>
-            <h3>{{info.distance}}</h3>
-            <p>距离</p>
-          </li>
-        </ul>
-        <h3 class="brief-modal-title">
-          <span>公告</span></h3>
-          <div class="brief-modal-notice">
-            {{info.bulletin}}
+    <transition class="fade">
+      <div class="shop-brief-modal" style="display: none;" v-show="isShowBulletin">
+        <div class="brief-modal-content">
+          <h2 class="content-title">
+            <span class="content-tag">
+              <span class="mini-tag">品牌</span>
+            </span>
+            <span class="content-name">{{info.name}}</span>
+          </h2>
+          <ul class="brief-modal-msg">
+            <li>
+              <h3>{{info.rating}}</h3>
+              <p>评分</p>
+            </li>
+            <li>
+              <h3>{{info.sellCount}}单</h3>
+              <p>月售</p>
+            </li>
+            <li>
+              <h3>{{info.description}}</h3>
+              <p>约{{info.deliveryTime}}分钟</p>
+            </li>
+            <li>
+              <h3>{{info.deliveryPrice}}元</h3>
+              <p>配送费用</p>
+            </li>
+            <li>
+              <h3>{{info.distance}}</h3>
+              <p>距离</p>
+            </li>
+          </ul>
+          <h3 class="brief-modal-title">
+            <span>公告</span></h3>
+            <div class="brief-modal-notice">
+              {{info.bulletin}}
+            </div>
+          <div class="mask-footer" @click="isShowBulletin = false">
+            <span class="iconfont icon-close"></span>
           </div>
-        <div class="mask-footer" @click="isShowBulletin = false">
-          <span class="iconfont icon-close"></span>
         </div>
+        <div class="brief-modal-cover" @click="isShowBulletin = false"></div>
       </div>
-      <div class="brief-modal-cover" @click="isShowBulletin = false"></div>
-    </div>
+    </transition>
+    
     <div class="activity-sheet" style="display: none;" v-show="isShowInfo">
       <div class="activity-sheet-content">
         <h2 class="activity-sheet-title">
@@ -115,7 +118,9 @@
     },
 
     computed:{
-      ...mapState(['info'])
+      ...mapState({
+        info: state => state.shop.info
+      })
     }
   }
 </script>
@@ -309,6 +314,10 @@
       z-index 52
       flex-direction column
       color #333
+      &.fade-enter-active, &.fade-leave-active 
+        transition opacity .5s
+      &.fade-enter, &.fade-leave-to
+        opacity 0
       .brief-modal-cover
         position absolute
         width 100%

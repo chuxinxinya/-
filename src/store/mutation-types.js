@@ -19,3 +19,11 @@ export const RECEIVE_GOODS = 'receive_goods'
 export const RECEIVE_RATINGS = 'receive_ratings'
 
 export const RECEIVE_INFO = 'receive_info'
+
+export const ADD_FOOD_HASCOUNT = 'add_food_hascount'
+
+export const ADD_FOOD_NOCOUNT = 'add_food_nocount'
+
+export const REDUCE_FOOD_HASCOUNT = 'reduce_food_hascount'
+
+export const CLEAR_CART = 'clear_cart'
